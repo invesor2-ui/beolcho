@@ -215,8 +215,8 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
   transition:all .15s;border:2px solid transparent;
 }
 .btn-action svg{width:14px;height:14px;flex-shrink:0}
-.btn-phone{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
-.btn-phone:hover{background:#991b1b;color:#fff;border-color:#991b1b}
+.btn-call{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+.btn-call:hover{background:#991b1b;color:#fff;border-color:#991b1b}
 .btn-sms{background:#dcfce7;color:#166534;border-color:#86efac}
 .btn-sms:hover{background:#166534;color:#fff;border-color:#166534}
 .btn-mail{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
@@ -318,7 +318,259 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
   opacity:0;transition:all .3s;pointer-events:none;z-index:999;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media(max-width:700px){.action-row{grid-template-columns:1fr 1fr}.btn-action{font-size:12px;padding:12px 4px}}
+
+
+/* ── MOBILE RESPONSIVE v4 ── */
+@media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    background: var(--bg);
+  }
+
+  .header {
+    position: static;
+  }
+
+  .header-inner {
+    max-width: none;
+    width: 100%;
+    padding: 16px 14px;
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .header-center {
+    display: contents;
+  }
+
+  .logo-icon {
+    width: 54px;
+    height: 54px;
+    font-size: 27px;
+    border-radius: 13px;
+    grid-column: 1;
+  }
+
+  .header-text {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  .header-text .header-title {
+    font-size: 19px;
+    line-height: 1.32;
+    letter-spacing: -0.7px;
+    word-break: keep-all;
+  }
+
+  .header-text .header-sub {
+    font-size: 12px;
+    line-height: 1.45;
+    margin-top: 5px;
+    word-break: keep-all;
+  }
+
+  .zoom-ctrl {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+
+  .zbtn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .main {
+    width: 100%;
+    max-width: none;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .left-panel,
+  .right-panel {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .right-panel {
+    position: static;
+    top: auto;
+    max-height: none;
+    order: -1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-scrollable {
+    overflow: visible;
+    max-height: none;
+    flex: none;
+    padding-bottom: 0;
+  }
+
+  .right-fixed-btns {
+    background: transparent;
+    padding-top: 0;
+    margin-bottom: 12px;
+  }
+
+  .result-card {
+    padding: 20px 18px;
+    margin-bottom: 12px;
+  }
+
+  .result-amount {
+    font-size: 38px;
+    letter-spacing: -1px;
+  }
+
+  .result-unit {
+    font-size: 18px;
+  }
+
+  .action-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .btn-action {
+    min-height: 46px;
+    font-size: 13px;
+    padding: 11px 8px;
+  }
+
+  .card {
+    border-radius: 14px;
+    margin-bottom: 14px;
+  }
+
+  .card-title {
+    padding: 11px 16px;
+    font-size: 12px;
+  }
+
+  .card-body {
+    padding: 14px 16px 16px;
+  }
+
+  .g2,
+  .g3,
+  #areaOnlyRow {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .season-pills {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .pill {
+    min-height: 58px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.35;
+    padding: 8px 4px;
+  }
+
+  select,
+  input[type=number] {
+    min-height: 46px;
+    font-size: 16px;
+    padding: 11px 13px;
+  }
+
+  .field label {
+    font-size: 12px;
+    padding: 5px 8px;
+    margin-bottom: 7px;
+  }
+
+  .check-item {
+    padding: 12px 13px;
+    gap: 10px;
+  }
+
+  .check-label {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .check-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .msg-body {
+    min-height: auto;
+    max-height: none;
+    padding: 14px;
+  }
+
+  .msg-amount-value {
+    font-size: 20px;
+  }
+
+  .msg-row,
+  .msg-detail-item {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .modal {
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+  }
+}
+
+@media (max-width: 420px) {
+  .header-inner {
+    grid-template-columns: 48px 1fr;
+    padding: 14px 12px;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .header-text .header-title {
+    font-size: 17px;
+  }
+
+  .main {
+    padding: 12px;
+  }
+
+  .result-amount {
+    font-size: 34px;
+  }
+
+  .action-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .season-pills {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -489,19 +741,19 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
   </div><!-- end right-scrollable -->
   <div class="right-fixed-btns">
     <div class="action-row">
-      <button class="btn-action btn-phone" onclick="callPhone()">
+      <button class="btn-action btn-call" type="button" onclick="callPhone()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         전화 상담
       </button>
-      <button class="btn-action btn-sms" onclick="sendSMS()">
+      <button class="btn-action btn-sms" type="button" onclick="sendSMS()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         문자 문의
       </button>
-      <button class="btn-action btn-mail" onclick="sendMail()">
+      <button class="btn-action btn-mail" type="button" onclick="sendMail()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         메일 문의
       </button>
-      <button class="btn-action btn-copy2" onclick="copyEstimate()">
+      <button class="btn-action btn-copy2" type="button" onclick="copyEstimate()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         내용 복사
       </button>
@@ -512,7 +764,7 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
       <div class="modal" onclick="event.stopPropagation()">
         <div class="modal-header">📱 문자 보내기<button class="modal-close" onclick="closeModal('smsModal')">✕</button></div>
         <div class="modal-body">
-          <div class="modal-field"><label>받는 사람 전화번호</label><input type="tel" id="smsPhone" value="01028059912"></div>
+          <div class="modal-field"><label>받는 사람 전화번호</label><input type="tel" id="smsPhone" placeholder="010-0000-0000"></div>
           <div class="modal-field"><label>문자 내용</label><textarea id="smsBody" rows="9"></textarea></div>
           <div class="modal-btns">
             <button class="modal-btn modal-btn-sub" onclick="closeModal('smsModal')">취소</button>
@@ -531,7 +783,7 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
       <div class="modal" onclick="event.stopPropagation()">
         <div class="modal-header">✉️ 메일 보내기<button class="modal-close" onclick="closeModal('mailModal')">✕</button></div>
         <div class="modal-body">
-          <div class="modal-field"><label>받는 사람 이메일</label><input type="email" id="mailTo" value="invesor2@gmail.com"></div>
+          <div class="modal-field"><label>받는 사람 이메일</label><input type="email" id="mailTo" placeholder="customer@email.com"></div>
           <div class="modal-field"><label>메일 제목</label><input type="text" id="mailSubject"></div>
           <div class="modal-field"><label>메일 내용</label><textarea id="mailBody" rows="8"></textarea></div>
           <div class="modal-btns">
@@ -676,36 +928,77 @@ function calc(){
 }
 
 function copyEstimate(){
-  navigator.clipboard.writeText(document.getElementById('message').innerText).then(()=>{
-    const t=document.getElementById('toast');t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'),2500);
-  });
+  const text=getMsgText();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(showToast).catch(()=>fallbackCopy(text));
+  }else{
+    fallbackCopy(text);
+  }
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;
+  ta.style.position='fixed';
+  ta.style.left='-9999px';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try{document.execCommand('copy');showToast();}
+  catch(e){alert('복사에 실패했습니다. 내용을 직접 선택해서 복사해 주세요.');}
+  document.body.removeChild(ta);
+}
+function showToast(){
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
 }
 function getMsgText(){return window._plainMsg||document.getElementById('message').innerText}
+
+// 상담 연결 정보
+const OWNER_PHONE='01028059912';
+const OWNER_EMAIL='invesor2@gmail.com';
+
+function getContactMsg(){
+  return '[벌초 견적 문의]\n\n'+getMsgText();
+}
 function callPhone(){
-  window.location.href='tel:01028059912';
+  window.location.href='tel:'+OWNER_PHONE;
 }
 function sendSMS(){
-  document.getElementById('smsPhone').value='01028059912';
-  document.getElementById('smsBody').value=getMsgText();
-  document.getElementById('smsModal').classList.add('open');
+  const body=encodeURIComponent(getContactMsg());
+  const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+  window.location.href=isIOS ? 'sms:'+OWNER_PHONE+'&body='+body : 'sms:'+OWNER_PHONE+'?body='+body;
 }
 function sendMail(){
   const jn={beolcho:'벌초',yecho:'예초',gravecare:'묘지관리',solar:'태양광 예초'}[document.getElementById('job').value];
   const amt=document.getElementById('totalAmount').innerText;
-  document.getElementById('mailTo').value='invesor2@gmail.com';
-  document.getElementById('mailSubject').value='[벌초대행] '+jn+' 예상 견적 안내 - '+amt+'원';
-  document.getElementById('mailBody').value=getMsgText();
+  const subject=encodeURIComponent('[벌초대행 견적 문의] '+jn+' 예상 견적 - '+amt+'원');
+  const body=encodeURIComponent(getContactMsg());
+  window.location.href='mailto:'+OWNER_EMAIL+'?subject='+subject+'&body='+body;
+}
+function sendSMSModal(){
+  // 예전 모달 방식이 필요할 때를 대비한 함수입니다.
+  document.getElementById('smsPhone').value=OWNER_PHONE;
+  document.getElementById('smsBody').value=getContactMsg();
+  document.getElementById('smsModal').classList.add('open');
+}
+function sendMailModal(){
+  const jn={beolcho:'벌초',yecho:'예초',gravecare:'묘지관리',solar:'태양광 예초'}[document.getElementById('job').value];
+  const amt=document.getElementById('totalAmount').innerText;
+  document.getElementById('mailTo').value=OWNER_EMAIL;
+  document.getElementById('mailSubject').value='[벌초대행 견적 문의] '+jn+' 예상 견적 - '+amt+'원';
+  document.getElementById('mailBody').value=getContactMsg();
   document.getElementById('mailModal').classList.add('open');
 }
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 function doSendSMS(){
-  const ph=(document.getElementById('smsPhone').value.trim().replace(/-/g,'') || '01028059912');
+  const ph=(document.getElementById('smsPhone').value.trim()||OWNER_PHONE).replace(/-/g,'');
   const bd=encodeURIComponent(document.getElementById('smsBody').value);
-  window.location.href=(/iPhone|iPad/i.test(navigator.userAgent)?'sms:'+ph+'&body=':'sms:'+ph+'?body=')+bd;
+  const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+  window.location.href=isIOS ? 'sms:'+ph+'&body='+bd : 'sms:'+ph+'?body='+bd;
 }
 function doSendMail(){
-  const to=encodeURIComponent(document.getElementById('mailTo').value.trim() || 'invesor2@gmail.com');
+  const to=encodeURIComponent(document.getElementById('mailTo').value.trim()||OWNER_EMAIL);
   const sub=encodeURIComponent(document.getElementById('mailSubject').value.trim());
   const bd=encodeURIComponent(document.getElementById('mailBody').value);
   window.location.href='mailto:'+to+'?subject='+sub+'&body='+bd;
