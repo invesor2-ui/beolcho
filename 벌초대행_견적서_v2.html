@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>벌초·예초 견적 계산기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green-dark:#1a5c42;--green-mid:#2d7a5a;--green-accent:#3ca876;
+  --green-light:#e8f5ef;--green-pale:#f2faf6;
+  --amber:#d4850a;--amber-light:#fff8e6;
+  --text:#1a1a1a;--text-muted:#6b7280;
+  --border:#e0e7e4;--bg:#f5f7f6;--white:#fff;
+  --radius:10px;--radius-lg:16px;
+  --shadow:0 1px 4px rgba(0,0,0,.08);
+}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;
+}
+
+/* ── HEADER ── */
+.header{
+  background:var(--green-dark);color:#fff;
+  border-bottom:4px solid var(--green-accent);
+  position:sticky;top:0;z-index:10;
+}
+.header-inner{
+  max-width:1060px;
+  margin:0 auto;
+  padding:18px 28px;
+  display:flex;align-items:center;gap:0;
+}
+.header-center{
+  display:flex;align-items:center;gap:18px;
+  flex:1;
+}
+.logo-icon{
+  width:60px;height:60px;background:var(--green-accent);
+  border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:30px;flex-shrink:0;
+}
+.header-text .header-title{font-size:24px;font-weight:900;letter-spacing:-.5px}
+.header-text .header-sub{font-size:14px;color:rgba(255,255,255,.65);margin-top:4px}
+.zoom-ctrl{
+  display:flex;align-items:center;gap:5px;flex-shrink:0;
+}
+.zbtn{
+  width:32px;height:32px;border:none;border-radius:8px;
+  background:rgba(255,255,255,.15);color:#fff;
+  font-size:18px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;line-height:1;font-family:inherit;
+}
+.zbtn:hover{background:rgba(255,255,255,.28)}
+.zbtn.zreset{font-size:14px}
+.zlbl{font-size:12px;font-weight:700;color:rgba(255,255,255,.8);min-width:40px;text-align:center}
+
+/* ── LAYOUT ── */
+.main{
+  max-width:1060px;
+  margin:0 auto;
+  padding:24px 28px;
+  display:grid;
+  grid-template-columns:1fr 360px;
+  gap:22px;
+  align-items:start;
+}
+.right-panel{
+  position:sticky;
+  top:96px;
+  display:flex;
+  flex-direction:column;
+  max-height:calc(100vh - 110px);
+}
+.right-scrollable{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding-bottom:4px;
+}
+.right-scrollable::-webkit-scrollbar{width:4px}
+.right-scrollable::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.right-fixed-btns{
+  flex-shrink:0;
+  padding-top:10px;
+  background:var(--bg);
+}
+
+/* ── CARDS ── */
+.card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:0;
+  box-shadow:var(--shadow);margin-bottom:14px;
+  overflow:hidden;
+}
+.card-body{padding:16px 20px 18px;}
+.card:last-child{margin-bottom:0}
+.card-title{
+  font-size:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.7px;
+  padding:11px 20px;
+  display:flex;align-items:center;gap:7px;
+  margin:0;
+}
+.card-title svg{width:14px;height:14px;flex-shrink:0}
+
+/* 섹션별 개별 색상 */
+.ct-info{background:#e8f4fd;border-bottom:2px solid #90caf9;color:#1a4a7a;}
+.ct-season{background:#fff3e0;border-bottom:2px solid #ffb74d;color:#7a4400;}
+.ct-access{background:#f3e5f5;border-bottom:2px solid #ce93d8;color:#5a1a7a;}
+.ct-special{background:#fce4ec;border-bottom:2px solid #f48fb1;color:#8a0028;}
+
+/* 필드 레이블도 섹션 색상에 맞게 */
+.ct-info~.card-body .field label{background:#eaf3fd;border-left-color:#42a5f5;}
+.ct-season~.card-body .field label{background:#fff8e1;border-left-color:#ffa726;}
+.ct-access~.card-body .field label{background:#f8f0fc;border-left-color:#ba68c8;}
+.ct-special~.card-body .field label{background:#fdf0f4;border-left-color:#e91e63;}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* ── FIELDS ── */
+.field label{
+  font-size:11px;font-weight:700;
+  letter-spacing:.3px;display:block;
+  border-left:3px solid #ccc;
+  padding:4px 8px;border-radius:0 4px 4px 0;
+  margin-bottom:6px;
+}
+/* 기본 정보 라벨 */
+.ct-info ~ .card-body .field label{background:#eaf3fd;border-left-color:#42a5f5;color:#1a4a7a;}
+/* 작업 시기 라벨 - pill 없음, 해당없음 */
+/* 접근성 라벨 */
+.ct-access ~ .card-body .field label{background:#f8f0fc;border-left-color:#ba68c8;color:#5a1a7a;}
+/* 특이사항 라벨 - check-item으로 대체 */
+select,input[type=number]{
+  width:100%;padding:10px 13px;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  font-size:14px;font-family:inherit;color:var(--text);background:var(--white);
+  transition:border-color .15s;appearance:none;-webkit-appearance:none;
+}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;padding-right:32px;
+}
+select:focus,input[type=number]:focus{
+  outline:none;border-color:var(--green-accent);
+  box-shadow:0 0 0 3px rgba(60,168,118,.14);
+}
+select:hover,input[type=number]:hover{border-color:#b0c8bc}
+
+/* ── SEASON PILLS ── */
+.season-pills{display:flex;gap:8px}
+.pill{
+  flex:1;padding:6px 6px;text-align:center;cursor:pointer;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  font-size:12px;font-weight:700;
+  transition:all .15s;color:var(--text-muted);background:var(--white);
+}
+.pill:hover{border-color:var(--green-accent);color:var(--green-dark)}
+.pill.active{border-color:var(--green-accent);background:var(--green-light);color:var(--green-dark)}
+.pill.busy-pill.active{border-color:var(--amber);background:var(--amber-light);color:var(--amber)}
+
+/* ── CHECKBOXES ── */
+.check-group{display:flex;flex-direction:column;gap:8px}
+.check-item{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 13px;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;transition:all .15s;user-select:none;
+}
+.check-item:hover{border-color:var(--green-accent);background:var(--green-pale)}
+.check-item.checked{border-color:var(--green-accent);background:var(--green-light)}
+.check-box{
+  width:20px;height:20px;flex-shrink:0;
+  border:2px solid var(--border);border-radius:5px;
+  background:var(--white);display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.check-box svg{width:11px;height:11px;display:block;opacity:0;transition:opacity .12s}
+.check-item.checked .check-box svg{opacity:1}
+.check-label{font-size:13px;font-weight:500;flex:1}
+.check-item.checked .check-label{color:var(--green-dark);font-weight:700}
+.check-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;background:#fee2e2;color:#b91c1c}
+.check-badge.warn{background:var(--amber-light);color:var(--amber)}
+.check-badge.info{background:var(--green-light);color:var(--green-dark)}
+
+/* ── RESULT CARD ── */
+.result-card{
+  background:linear-gradient(145deg,var(--green-dark) 0%,var(--green-mid) 100%);
+  border-radius:var(--radius-lg);padding:24px 22px;
+  color:#fff;margin-bottom:14px;
+}
+.result-label{font-size:11px;color:rgba(255,255,255,.6);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px}
+.result-amount{font-size:44px;font-weight:900;letter-spacing:-1.5px;line-height:1}
+.result-unit{font-size:20px;font-weight:700;margin-left:2px}
+.result-divider{border:none;border-top:1px solid rgba(255,255,255,.14);margin:14px 0}
+.breakdown{display:flex;flex-direction:column;gap:6px}
+.breakdown-item{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:rgba(255,255,255,.72)}
+.breakdown-item .dot{width:5px;height:5px;border-radius:50%;background:var(--green-accent);flex-shrink:0;margin-right:6px}
+.breakdown-item .label{display:flex;align-items:center}
+.result-note{font-size:11px;color:rgba(255,255,255,.4);margin-top:13px;line-height:1.6}
+
+/* ── ACTION BUTTONS ── */
+.action-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:0}
+.btn-action{
+  padding:11px 4px;border-radius:var(--radius);
+  font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:all .15s;border:2px solid transparent;
+}
+.btn-action svg{width:14px;height:14px;flex-shrink:0}
+.btn-sms{background:#dcfce7;color:#166534;border-color:#86efac}
+.btn-sms:hover{background:#166534;color:#fff;border-color:#166534}
+.btn-mail{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.btn-mail:hover{background:#1e40af;color:#fff;border-color:#1e40af}
+.btn-copy2{background:var(--white);color:var(--green-dark);border-color:var(--green-accent)}
+.btn-copy2:hover{background:var(--green-accent);color:#fff}
+.btn-action:active{transform:scale(.97)}
+
+/* ── MSG PREVIEW ── */
+.msg-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden;
+}
+.msg-header{
+  padding:10px 15px;background:var(--bg);
+  border-bottom:1px solid var(--border);
+  font-size:11px;font-weight:700;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.5px;
+  display:flex;align-items:center;gap:6px;
+}
+.msg-header svg{width:12px;height:12px;opacity:.7}
+.msg-body{
+  padding:16px;font-size:13px;line-height:1.7;
+  color:var(--text);
+  min-height:500px;overflow-y:auto;
+}
+.msg-greeting{font-size:13px;color:var(--text-muted);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.msg-amount-row{
+  background:var(--green-dark);border-radius:10px;
+  padding:14px 16px;margin-bottom:14px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.msg-amount-label{font-size:11px;color:rgba(255,255,255,.65);font-weight:700;letter-spacing:.5px;}
+.msg-amount-value{font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;}
+.msg-rows{display:flex;flex-direction:column;gap:0;margin-bottom:14px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.msg-row{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;font-size:13px;border-bottom:1px solid var(--border);}
+.msg-row:last-child{border-bottom:none;}
+.msg-row-label{color:var(--text-muted);font-weight:500;font-size:12px;}
+.msg-row-value{font-weight:700;color:var(--text);}
+.msg-detail-title{font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px;}
+.msg-details{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.msg-detail-item{display:flex;justify-content:space-between;font-size:12px;background:#f8faf9;border-radius:6px;padding:6px 10px;}
+.msg-detail-item .dk{color:var(--text-muted);}
+.msg-detail-item .dv{font-weight:700;color:var(--green-dark);}
+.msg-note{font-size:11px;color:var(--text-muted);line-height:1.65;padding:10px 12px;background:#fafafa;border-radius:8px;border-left:3px solid var(--border);}
+.msg-body::-webkit-scrollbar{width:4px}
+.msg-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── MODAL ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.42);z-index:1000;
+  align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--white);border-radius:var(--radius-lg);
+  width:460px;max-width:92vw;
+  box-shadow:0 20px 56px rgba(0,0,0,.2);overflow:hidden;
+}
+.modal-header{
+  background:var(--green-dark);color:#fff;
+  padding:15px 20px;font-size:15px;font-weight:700;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-close{background:none;border:none;color:rgba(255,255,255,.65);font-size:18px;cursor:pointer;line-height:1;padding:0 4px}
+.modal-close:hover{color:#fff}
+.modal-body{padding:18px;display:flex;flex-direction:column;gap:10px}
+.modal-field label{font-size:12px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:5px}
+.modal-field input,.modal-field textarea{
+  width:100%;padding:10px 13px;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;
+  appearance:none;
+}
+.modal-field input:focus,.modal-field textarea:focus{
+  border-color:var(--green-accent);box-shadow:0 0 0 3px rgba(60,168,118,.13);
+}
+.modal-field textarea{resize:vertical;line-height:1.7}
+.modal-btns{display:flex;gap:8px;margin-top:4px}
+.modal-btn{
+  flex:1;padding:11px;border-radius:var(--radius);
+  font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;border:none;
+  display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;
+}
+.modal-btn-sub{background:var(--bg);color:var(--text-muted)}
+.modal-btn-sub:hover{background:var(--border)}
+.modal-btn-main{background:var(--green-dark);color:#fff}
+.modal-btn-main:hover{background:var(--green-mid)}
+.modal-tip{font-size:11px;color:var(--text-muted);text-align:center}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(70px);
+  background:var(--green-dark);color:#fff;
+  padding:11px 24px;border-radius:30px;
+  font-size:14px;font-weight:700;
+  opacity:0;transition:all .3s;pointer-events:none;z-index:999;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-center">
+      <div class="logo-icon">🌿</div>
+      <div class="header-text">
+        <div class="header-title">벌초·예초·묘지관리·태양광 예초 견적 계산기</div>
+        <div class="header-sub">현장 조건을 입력하면 예상 견적을 자동으로 계산합니다</div>
+      </div>
+    </div>
+    <div class="zoom-ctrl">
+      <button class="zbtn" onclick="zoomOut()" title="축소">－</button>
+      <span class="zlbl" id="zoomLbl">100%</span>
+      <button class="zbtn" onclick="zoomIn()" title="확대">＋</button>
+      <button class="zbtn zreset" onclick="zoomReset()" title="초기화">↺</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="zoomRoot">
+
+  <!-- LEFT -->
+  <div class="left-panel">
+
+    <div class="card">
+      <div class="card-title ct-info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        기본 정보
+      </div>
+      <div class="card-body"><div class="g2" style="margin-bottom:12px">
+        <div class="field">
+          <label>작업 종류</label>
+          <select id="job" onchange="toggleFields();calc()">
+            <option value="beolcho">벌초</option>
+            <option value="yecho">예초</option>
+            <option value="gravecare">묘지관리</option>
+            <option value="solar">태양광 예초</option>
+          </select>
+        </div>
+        <div class="field" id="graveTypeField">
+          <label>묘지 구분</label>
+          <select id="graveType" onchange="calc()">
+            <option value="private">개인묘지</option>
+            <option value="park">공원묘지</option>
+            <option value="family">문중·가족묘지</option>
+          </select>
+        </div>
+      </div>
+      <div class="g3" id="graveCountField">
+        <div class="field"><label>분묘 개수 (기)</label><input id="count" type="number" value="1" min="1" oninput="calc()"></div>
+        <div class="field"><label>작업 면적 (평)</label><input id="area" type="number" value="20" min="1" oninput="calc()"></div>
+        <div class="field"><label>풀 높이</label>
+          <select id="height" onchange="calc()">
+            <option value="0">무릎 이하 (~50cm)</option>
+            <option value="1.1">허리 이하 (70~90cm)</option>
+            <option value="1.25">어깨 이하 (1~1.5m)</option>
+            <option value="1.5">어깨 이상 / 묵은 풀</option>
+          </select>
+        </div>
+      </div>
+      <div class="g2" id="areaOnlyRow" style="display:none">
+        <div class="field"><label>작업 면적 (평)</label><input id="area2" type="number" value="20" min="1" oninput="syncArea();calc()"></div>
+        <div class="field"><label>풀 높이</label>
+          <select id="height2" onchange="syncHeight();calc()">
+            <option value="0">무릎 이하 (~50cm)</option>
+            <option value="1.1">허리 이하 (70~90cm)</option>
+            <option value="1.25">어깨 이하 (1~1.5m)</option>
+            <option value="1.5">어깨 이상 / 묵은 풀</option>
+          </select>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title ct-season">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        작업 시기
+      </div>
+      <div class="card-body"><div class="season-pills">
+        <div class="pill active" data-val="normal" onclick="setSeason(this)">평상시</div>
+        <div class="pill busy-pill" data-val="busy" onclick="setSeason(this)">성수기<br><span style="font-size:10px;font-weight:400">추석 전 +15%</span></div>
+        <div class="pill" data-val="fixed" onclick="setSeason(this)">고객 지정일<br><span style="font-size:10px;font-weight:400">+20%</span></div>
+      </div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title ct-access">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        접근성 및 후처리
+      </div>
+      <div class="card-body"><div class="g2">
+        <div class="field"><label>도보 거리</label>
+          <select id="walk" onchange="calc()">
+            <option value="0">100m 이하</option>
+            <option value="1">200m 이상 (+1만원)</option>
+            <option value="2">300m 이상 (+2만원)</option>
+            <option value="3">400m 이상 (+3만원)</option>
+            <option value="0" data-consult="1">500m 이상 (협의)</option>
+          </select>
+        </div>
+        <div class="field"><label>작업 후 처리</label>
+          <select id="clean" onchange="calc()">
+            <option value="0">치우지 않음</option>
+            <option value="1100">기본 정리·송풍</option>
+            <option value="1350">깎은 풀 모으기</option>
+            <option value="1600">제초제 살포</option>
+          </select>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title ct-special">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        현장 특이사항 (추가비용)
+      </div>
+      <div class="card-body"><div class="check-group">
+        <div class="check-item" id="ci-slope" onclick="toggleCheck('slope')">
+          <div class="check-box" id="cb-slope"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="check-label">경사 심함 / 산소 위치가 높음</span>
+          <span class="check-badge warn">×1.3배</span>
+        </div>
+        <div class="check-item" id="ci-bush" onclick="toggleCheck('bush')">
+          <div class="check-box" id="cb-bush"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="check-label">잡목 제거 필요</span>
+          <span class="check-badge warn">+5만원</span>
+        </div>
+        <div class="check-item" id="ci-risk" onclick="toggleCheck('risk')">
+          <div class="check-box" id="cb-risk"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="check-label">차량·유리·시설물 인접 / 돌튐 위험</span>
+          <span class="check-badge">+5만원</span>
+        </div>
+        <div class="check-item" id="ci-waste" onclick="toggleCheck('waste')">
+          <div class="check-box" id="cb-waste"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="check-label">폐기물 외부 반출 필요</span>
+          <span class="check-badge">+10만원</span>
+        </div>
+        <div class="check-item" id="ci-path" onclick="toggleCheck('path')">
+          <div class="check-box" id="cb-path"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="check-label">진입로 정비 필요</span>
+          <span class="check-badge info">+4.4만원</span>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+  <div class="right-scrollable">
+
+    <div class="result-card">
+      <div class="result-label">예상 견적 금액</div>
+      <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:4px">
+        <div class="result-amount" id="totalAmount">110,000</div>
+        <div class="result-unit">원</div>
+      </div>
+      <hr class="result-divider">
+      <div class="breakdown" id="breakdown"></div>
+      <div class="result-note">※ 현장 사진·진입로·경사·잡목·돌쓰레기·차량 접근성에 따라 최종 금액이 조정될 수 있습니다.</div>
+    </div>
+
+  </div><!-- end right-scrollable -->
+  <div class="right-fixed-btns">
+    <div class="action-row">
+      <button class="btn-action btn-sms" onclick="sendSMS()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        문자 보내기
+      </button>
+      <button class="btn-action btn-mail" onclick="sendMail()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        메일 보내기
+      </button>
+      <button class="btn-action btn-copy2" onclick="copyEstimate()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        내용 복사
+      </button>
+    </div>
+
+    <!-- SMS Modal -->
+    <div class="modal-overlay" id="smsModal" onclick="closeModal('smsModal')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">📱 문자 보내기<button class="modal-close" onclick="closeModal('smsModal')">✕</button></div>
+        <div class="modal-body">
+          <div class="modal-field"><label>받는 사람 전화번호</label><input type="tel" id="smsPhone" placeholder="010-0000-0000"></div>
+          <div class="modal-field"><label>문자 내용</label><textarea id="smsBody" rows="9"></textarea></div>
+          <div class="modal-btns">
+            <button class="modal-btn modal-btn-sub" onclick="closeModal('smsModal')">취소</button>
+            <button class="modal-btn modal-btn-main" onclick="doSendSMS()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              문자 앱으로 열기
+            </button>
+          </div>
+          <p class="modal-tip">기기의 기본 문자 앱이 열립니다</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mail Modal -->
+    <div class="modal-overlay" id="mailModal" onclick="closeModal('mailModal')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">✉️ 메일 보내기<button class="modal-close" onclick="closeModal('mailModal')">✕</button></div>
+        <div class="modal-body">
+          <div class="modal-field"><label>받는 사람 이메일</label><input type="email" id="mailTo" placeholder="customer@email.com"></div>
+          <div class="modal-field"><label>메일 제목</label><input type="text" id="mailSubject"></div>
+          <div class="modal-field"><label>메일 내용</label><textarea id="mailBody" rows="8"></textarea></div>
+          <div class="modal-btns">
+            <button class="modal-btn modal-btn-sub" onclick="closeModal('mailModal')">취소</button>
+            <button class="modal-btn modal-btn-main" onclick="doSendMail()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              메일 앱으로 열기
+            </button>
+          </div>
+          <p class="modal-tip">기기의 기본 메일 앱이 열립니다</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end right-fixed-btns -->
+  <div class="right-scrollable" style="margin-top:10px">
+    <div class="msg-card">
+      <div class="msg-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        고객 안내문 미리보기
+      </div>
+      <div class="msg-body" id="message"></div>
+    </div>
+
+  </div><!-- end right-scrollable msg -->
+  </div><!-- end right-panel -->
+
+</div>
+
+<div class="toast" id="toast">✅ 고객 안내문이 복사되었습니다</div>
+
+<script>
+let season='normal';
+const checked={slope:false,bush:false,risk:false,waste:false,path:false};
+
+// ── ZOOM ──
+let zoomLevel=100;
+function applyZoom(){
+  document.getElementById('zoomRoot').style.fontSize=zoomLevel+'%';
+  document.getElementById('zoomLbl').innerText=zoomLevel+'%';
+}
+function zoomIn(){if(zoomLevel<150){zoomLevel+=10;applyZoom();}}
+function zoomOut(){if(zoomLevel>60){zoomLevel-=10;applyZoom();}}
+function zoomReset(){zoomLevel=100;applyZoom();}
+
+function money(n){return Math.round(n/1000)*1000}
+function fmt(n){return money(n).toLocaleString('ko-KR')+'원'}
+
+function setSeason(el){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');season=el.dataset.val;calc();
+}
+
+function toggleCheck(id){
+  checked[id]=!checked[id];
+  const ci=document.getElementById('ci-'+id);
+  const cb=document.getElementById('cb-'+id);
+  ci.classList.toggle('checked',checked[id]);
+  cb.style.background=checked[id]?'#3ca876':'';
+  cb.style.borderColor=checked[id]?'#3ca876':'';
+  calc();
+}
+
+function syncArea(){document.getElementById('area').value=document.getElementById('area2').value}
+function syncHeight(){document.getElementById('height').value=document.getElementById('height2').value}
+
+function toggleFields(){
+  const job=document.getElementById('job').value;
+  const iso=job==='yecho'||job==='solar';
+  document.getElementById('graveTypeField').style.display=iso?'none':'';
+  document.getElementById('graveCountField').style.display=iso?'none':'grid';
+  document.getElementById('areaOnlyRow').style.display=iso?'grid':'none';
+  if(iso){
+    document.getElementById('area2').value=document.getElementById('area').value;
+    document.getElementById('height2').value=document.getElementById('height').value;
+  }
+}
+
+function calc(){
+  const job=document.getElementById('job').value;
+  const gt=document.getElementById('graveType').value;
+  const cnt=Number(document.getElementById('count').value||1);
+  const area=Number(document.getElementById('area').value||0);
+  const ht=Number(document.getElementById('height').value||0);
+  const walk=Number(document.getElementById('walk').value||0);
+  const clean=Number(document.getElementById('clean').value||0);
+  let total=0,detail=[];
+
+  if(job==='beolcho'){
+    if(gt==='park'){total=88000+Math.max(0,cnt-1)*22000+Math.max(0,area-10)*2800;detail.push({t:'공원묘 벌초 기본',v:'88,000원 기준'});}
+    else if(gt==='family'){total=0;detail.push({t:'문중·가족묘',v:'현장 상담 필요'});}
+    else{total=110000+Math.max(0,cnt-1)*33000+Math.max(0,area-20)*3300;detail.push({t:'개인묘 벌초 기본',v:'110,000원 기준'});}
+  }
+  if(job==='yecho'){
+    total=area<1000?Math.max(150000,area*660):area<2000?area*660:area<3000?area*623:area*578;
+    detail.push({t:'일반 예초',v:'평수 기준'});
+  }
+  if(job==='solar'){total=Math.max(250000,area*770);detail.push({t:'태양광 예초',v:'평당 770원'});}
+  if(job==='gravecare'){
+    const base=gt==='park'?330000:440000;
+    total=base+(cnt>1?(cnt-1)*(gt==='park'?22000:33000):0)+Math.max(0,area-20)*2200;
+    detail.push({t:'묘지 연관리',v:'연 2회 기준'});
+  }
+  if(ht>0){total*=ht;detail.push({t:'풀 높이 가산',v:'×'+ht});}
+  if(season==='busy'){total*=1.15;detail.push({t:'성수기 할증',v:'+15%'});}
+  if(season==='fixed'){total*=1.2;detail.push({t:'고객 지정일 할증',v:'+20%'});}
+  const ws=document.getElementById('walk');
+  const isC=ws.options[ws.selectedIndex].dataset.consult==='1';
+  if(isC){detail.push({t:'도보거리',v:'500m 이상 (현장 협의)'});}
+  else if(walk>0){total+=walk*10000;detail.push({t:'도보거리 추가',v:'+'+walk+'만원'});}
+  if(clean>0){total+=area*clean;detail.push({t:'후처리 추가',v:fmt(area*clean)});}
+  if(checked.slope){total*=1.3;detail.push({t:'경사면',v:'×1.3'});}
+  if(checked.bush){total+=50000;detail.push({t:'잡목 제거',v:'+50,000원'});}
+  if(checked.risk){total+=50000;detail.push({t:'위험구간',v:'+50,000원'});}
+  if(checked.waste){total+=100000;detail.push({t:'폐기물 반출',v:'+100,000원'});}
+  if(checked.path){total+=44000;detail.push({t:'진입로 정비',v:'+44,000원'});}
+
+  document.getElementById('totalAmount').innerText=money(total).toLocaleString('ko-KR');
+  document.getElementById('breakdown').innerHTML=detail.map(d=>
+    `<div class="breakdown-item"><span class="label"><span class="dot"></span>${d.t}</span><span>${d.v}</span></div>`
+  ).join('');
+
+  const jn={beolcho:'벌초',yecho:'예초',gravecare:'묘지관리',solar:'태양광 예초'}[job];
+  const plainMsg=`안녕하세요. 예상 견적 안내드립니다.\n\n작업 종류: ${jn}\n작업 면적: 약 ${area}평\n분묘 개수: ${job==='yecho'||job==='solar'?'-':cnt+'기'}\n예상 금액: ${fmt(total)}\n\n세부 반영:\n${detail.map(d=>`- ${d.t}: ${d.v}`).join('\n')}\n\n※ 현장 사진과 진입로, 경사, 잡목, 돌·쓰레기 상태에 따라 최종 금액은 조정될 수 있습니다.`;
+  window._plainMsg=plainMsg;
+  const detailHTML=detail.map(d=>`<div class="msg-detail-item"><span class="dk">${d.t}</span><span class="dv">${d.v}</span></div>`).join('');
+  document.getElementById('message').innerHTML=`
+    <div class="msg-greeting">안녕하세요. 예상 견적 안내드립니다.</div>
+    <div class="msg-amount-row">
+      <span class="msg-amount-label">예상 견적 금액</span>
+      <span class="msg-amount-value">${fmt(total)}</span>
+    </div>
+    <div class="msg-rows">
+      <div class="msg-row"><span class="msg-row-label">작업 종류</span><span class="msg-row-value">${jn}</span></div>
+      <div class="msg-row"><span class="msg-row-label">작업 면적</span><span class="msg-row-value">약 ${area}평</span></div>
+      <div class="msg-row"><span class="msg-row-label">분묘 개수</span><span class="msg-row-value">${job==='yecho'||job==='solar'?'-':cnt+'기'}</span></div>
+    </div>
+    <div class="msg-detail-title">세부 반영 내역</div>
+    <div class="msg-details">${detailHTML}</div>
+    <div class="msg-note">※ 현장 사진과 진입로, 경사, 잡목, 돌·쓰레기 상태에 따라 최종 금액은 조정될 수 있습니다.</div>
+  `;
+}
+
+function copyEstimate(){
+  navigator.clipboard.writeText(document.getElementById('message').innerText).then(()=>{
+    const t=document.getElementById('toast');t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2500);
+  });
+}
+function getMsgText(){return window._plainMsg||document.getElementById('message').innerText}
+function sendSMS(){
+  document.getElementById('smsPhone').value='';
+  document.getElementById('smsBody').value=getMsgText();
+  document.getElementById('smsModal').classList.add('open');
+}
+function sendMail(){
+  const jn={beolcho:'벌초',yecho:'예초',gravecare:'묘지관리',solar:'태양광 예초'}[document.getElementById('job').value];
+  const amt=document.getElementById('totalAmount').innerText;
+  document.getElementById('mailTo').value='';
+  document.getElementById('mailSubject').value='[벌초대행] '+jn+' 예상 견적 안내 - '+amt+'원';
+  document.getElementById('mailBody').value=getMsgText();
+  document.getElementById('mailModal').classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function doSendSMS(){
+  const ph=document.getElementById('smsPhone').value.trim().replace(/-/g,'');
+  const bd=encodeURIComponent(document.getElementById('smsBody').value);
+  window.location.href=(/iPhone|iPad/i.test(navigator.userAgent)?'sms:'+ph+'&body=':'sms:'+ph+'?body=')+bd;
+}
+function doSendMail(){
+  const to=encodeURIComponent(document.getElementById('mailTo').value.trim());
+  const sub=encodeURIComponent(document.getElementById('mailSubject').value.trim());
+  const bd=encodeURIComponent(document.getElementById('mailBody').value);
+  window.location.href='mailto:'+to+'?subject='+sub+'&body='+bd;
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal('smsModal');closeModal('mailModal')}});
+toggleFields();calc();
+</script>
+</body>
+</html>
