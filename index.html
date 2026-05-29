@@ -207,7 +207,7 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
 .result-note{font-size:11px;color:rgba(255,255,255,.4);margin-top:13px;line-height:1.6}
 
 /* ── ACTION BUTTONS ── */
-.action-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:0}
+.action-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:0}
 .btn-action{
   padding:11px 4px;border-radius:var(--radius);
   font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;
@@ -215,6 +215,8 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
   transition:all .15s;border:2px solid transparent;
 }
 .btn-action svg{width:14px;height:14px;flex-shrink:0}
+.btn-phone{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+.btn-phone:hover{background:#991b1b;color:#fff;border-color:#991b1b}
 .btn-sms{background:#dcfce7;color:#166534;border-color:#86efac}
 .btn-sms:hover{background:#166534;color:#fff;border-color:#166534}
 .btn-mail{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
@@ -316,6 +318,7 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
   opacity:0;transition:all .3s;pointer-events:none;z-index:999;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:700px){.action-row{grid-template-columns:1fr 1fr}.btn-action{font-size:12px;padding:12px 4px}}
 </style>
 </head>
 <body>
@@ -486,13 +489,17 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
   </div><!-- end right-scrollable -->
   <div class="right-fixed-btns">
     <div class="action-row">
-      <button class="btn-action btn-sms" onclick="sendSMS()">
+      <button class="btn-action btn-phone" onclick="callPhone()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        문자 보내기
+        전화 상담
+      </button>
+      <button class="btn-action btn-sms" onclick="sendSMS()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        문자 문의
       </button>
       <button class="btn-action btn-mail" onclick="sendMail()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        메일 보내기
+        메일 문의
       </button>
       <button class="btn-action btn-copy2" onclick="copyEstimate()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -505,7 +512,7 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
       <div class="modal" onclick="event.stopPropagation()">
         <div class="modal-header">📱 문자 보내기<button class="modal-close" onclick="closeModal('smsModal')">✕</button></div>
         <div class="modal-body">
-          <div class="modal-field"><label>받는 사람 전화번호</label><input type="tel" id="smsPhone" placeholder="010-0000-0000"></div>
+          <div class="modal-field"><label>받는 사람 전화번호</label><input type="tel" id="smsPhone" value="01028059912"></div>
           <div class="modal-field"><label>문자 내용</label><textarea id="smsBody" rows="9"></textarea></div>
           <div class="modal-btns">
             <button class="modal-btn modal-btn-sub" onclick="closeModal('smsModal')">취소</button>
@@ -524,7 +531,7 @@ select:hover,input[type=number]:hover{border-color:#b0c8bc}
       <div class="modal" onclick="event.stopPropagation()">
         <div class="modal-header">✉️ 메일 보내기<button class="modal-close" onclick="closeModal('mailModal')">✕</button></div>
         <div class="modal-body">
-          <div class="modal-field"><label>받는 사람 이메일</label><input type="email" id="mailTo" placeholder="customer@email.com"></div>
+          <div class="modal-field"><label>받는 사람 이메일</label><input type="email" id="mailTo" value="invesor2@gmail.com"></div>
           <div class="modal-field"><label>메일 제목</label><input type="text" id="mailSubject"></div>
           <div class="modal-field"><label>메일 내용</label><textarea id="mailBody" rows="8"></textarea></div>
           <div class="modal-btns">
@@ -675,27 +682,30 @@ function copyEstimate(){
   });
 }
 function getMsgText(){return window._plainMsg||document.getElementById('message').innerText}
+function callPhone(){
+  window.location.href='tel:01028059912';
+}
 function sendSMS(){
-  document.getElementById('smsPhone').value='';
+  document.getElementById('smsPhone').value='01028059912';
   document.getElementById('smsBody').value=getMsgText();
   document.getElementById('smsModal').classList.add('open');
 }
 function sendMail(){
   const jn={beolcho:'벌초',yecho:'예초',gravecare:'묘지관리',solar:'태양광 예초'}[document.getElementById('job').value];
   const amt=document.getElementById('totalAmount').innerText;
-  document.getElementById('mailTo').value='';
+  document.getElementById('mailTo').value='invesor2@gmail.com';
   document.getElementById('mailSubject').value='[벌초대행] '+jn+' 예상 견적 안내 - '+amt+'원';
   document.getElementById('mailBody').value=getMsgText();
   document.getElementById('mailModal').classList.add('open');
 }
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 function doSendSMS(){
-  const ph=document.getElementById('smsPhone').value.trim().replace(/-/g,'');
+  const ph=(document.getElementById('smsPhone').value.trim().replace(/-/g,'') || '01028059912');
   const bd=encodeURIComponent(document.getElementById('smsBody').value);
   window.location.href=(/iPhone|iPad/i.test(navigator.userAgent)?'sms:'+ph+'&body=':'sms:'+ph+'?body=')+bd;
 }
 function doSendMail(){
-  const to=encodeURIComponent(document.getElementById('mailTo').value.trim());
+  const to=encodeURIComponent(document.getElementById('mailTo').value.trim() || 'invesor2@gmail.com');
   const sub=encodeURIComponent(document.getElementById('mailSubject').value.trim());
   const bd=encodeURIComponent(document.getElementById('mailBody').value);
   window.location.href='mailto:'+to+'?subject='+sub+'&body='+bd;
